@@ -1,0 +1,342 @@
+import { useContext, useState } from "react";
+import { AppContext } from "../context/AppContext";
+import { assets } from "../assets/assets";
+import { User, Mail, Phone, MapPin, Calendar, Upload, Save, Edit3, LoaderCircle } from "lucide-react";
+import toast from "react-hot-toast";
+import Loader from "../components/Loader";
+
+const CandidateProfile = () => {
+    const { userData, setUserData, userDataLoading } = useContext(AppContext);
+    const [isEditing, setIsEditing] = useState(false);
+    const [profileImage, setProfileImage] = useState(null);
+    const [formData, setFormData] = useState({
+        name: userData?.name || "",
+        email: userData?.email || "",
+        phone: userData?.phone || "",
+        location: userData?.location || "",
+        bio: userData?.bio || ""
+    });
+
+    const handleInputChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+
+            if (!allowedTypes.includes(file.type)) {
+                toast.error('Please select a JPG, JPEG, or PNG file only.');
+                e.target.value = '';
+                return;
+            }
+
+            if (file.size > maxSize) {
+                toast.error('File size must be less than 5MB.');
+                e.target.value = '';
+                return;
+            }
+
+            setProfileImage(file);
+        }
+    };
+
+    const handleSave = async () => {
+        try {
+            // Here you would typically make an API call to update the profile
+            // For now, we'll just update the local state
+            setUserData({ ...userData, ...formData });
+            setIsEditing(false);
+            toast.success("Profile updated successfully!");
+        } catch {
+            toast.error("Failed to update profile");
+        }
+    };
+
+    if (userDataLoading) {
+        return (
+            <div className="w-full max-w-none space-y-4 sm:space-y-6">
+                {/* Loading Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-2">
+                        <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-32"></div>
+                        <div className="h-4 sm:h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-80"></div>
+                    </div>
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse w-full sm:w-32"></div>
+                </div>
+
+                {/* Loading Profile Card */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden w-full">
+                    {/* Loading Cover */}
+                    <div className="h-24 sm:h-32 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+
+                    {/* Loading Profile Content */}
+                    <div className="relative px-4 sm:px-6 pb-4 sm:pb-6">
+                        {/* Loading Profile Image */}
+                        <div className="absolute -top-12 sm:-top-16 left-4 sm:left-6">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse border-4 border-white dark:border-gray-800"></div>
+                        </div>
+
+                        {/* Loading Profile Info */}
+                        <div className="pt-12 sm:pt-16 space-y-6">
+                            <div className="space-y-2">
+                                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-48"></div>
+                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-32"></div>
+                            </div>
+
+                            {/* Loading Form Fields */}
+                            <div className="space-y-6">
+                                {Array.from({ length: 6 }).map((_, index) => (
+                                    <div key={index} className="space-y-2">
+                                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-24"></div>
+                                        <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse w-full"></div>
+                                    </div>
+                                ))}
+
+                                {/* Loading Bio Field */}
+                                <div className="space-y-2">
+                                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16"></div>
+                                    <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse w-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="w-full max-w-none space-y-4 sm:space-y-6">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">My Profile</h1>
+                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Manage your personal information and preferences</p>
+                </div>
+                <button
+                    onClick={() => setIsEditing(!isEditing)}
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base w-full sm:w-auto justify-center ${isEditing
+                        ? "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                        }`}
+                >
+                    <Edit3 className="w-4 h-4" />
+                    {isEditing ? "Cancel" : "Edit Profile"}
+                </button>
+            </div>
+
+            {/* Profile Card */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden w-full">
+                {/* Cover Image */}
+                <div className="h-24 sm:h-32 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+
+                {/* Profile Info */}
+                <div className="relative px-4 sm:px-6 pb-4 sm:pb-6">
+                    {/* Profile Image */}
+                    <div className="absolute -top-12 sm:-top-16 left-4 sm:left-6">
+                        <div className="relative">
+                            <img
+                                src={profileImage ? URL.createObjectURL(profileImage) : userData?.image || assets.default_profile}
+                                alt="Profile"
+                                className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white dark:border-gray-800 object-cover bg-white"
+                                onError={(e) => (e.target.src = assets.default_profile)}
+                            />
+                            {isEditing && (
+                                <label className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center cursor-pointer transition-colors">
+                                    <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        accept=".jpg,.jpeg,.png"
+                                        onChange={handleImageChange}
+                                    />
+                                </label>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Profile Details */}
+                    <div className="pt-16 sm:pt-20 space-y-4 sm:space-y-6 w-full">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 w-full">
+                            {/* Name */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Full Name
+                                </label>
+                                {isEditing ? (
+                                    <div className="relative">
+                                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleInputChange}
+                                            className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            placeholder="Enter your full name"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                        <User className="w-5 h-5 text-gray-400" />
+                                        <span className="text-gray-900 dark:text-white">{userData?.name || "Not provided"}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Email */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Email Address
+                                </label>
+                                {isEditing ? (
+                                    <div className="relative">
+                                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            placeholder="Enter your email"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                        <Mail className="w-5 h-5 text-gray-400" />
+                                        <span className="text-gray-900 dark:text-white">{userData?.email || "Not provided"}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Phone */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Phone Number
+                                </label>
+                                {isEditing ? (
+                                    <div className="relative">
+                                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                        <input
+                                            type="tel"
+                                            name="phone"
+                                            value={formData.phone}
+                                            onChange={handleInputChange}
+                                            className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            placeholder="Enter your phone number"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                        <Phone className="w-5 h-5 text-gray-400" />
+                                        <span className="text-gray-900 dark:text-white">{userData?.phone || "Not provided"}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Location */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Location
+                                </label>
+                                {isEditing ? (
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            name="location"
+                                            value={formData.location}
+                                            onChange={handleInputChange}
+                                            className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            placeholder="Enter your location"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                        <MapPin className="w-5 h-5 text-gray-400" />
+                                        <span className="text-gray-900 dark:text-white">{userData?.location || "Not provided"}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Bio */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Bio
+                            </label>
+                            {isEditing ? (
+                                <textarea
+                                    name="bio"
+                                    value={formData.bio}
+                                    onChange={handleInputChange}
+                                    rows={4}
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Tell us about yourself..."
+                                />
+                            ) : (
+                                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg min-h-[100px]">
+                                    <p className="text-gray-900 dark:text-white">
+                                        {userData?.bio || "No bio added yet. Add a bio to tell employers about yourself."}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Save Button */}
+                        {isEditing && (
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={handleSave}
+                                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                                >
+                                    <Save className="w-4 h-4" />
+                                    Save Changes
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Additional Information */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Account Information</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <Calendar className="w-5 h-5 text-gray-400" />
+                        <div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Member since</p>
+                            <p className="text-gray-900 dark:text-white">January 2024</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <User className="w-5 h-5 text-gray-400" />
+                        <div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Account Type</p>
+                            <p className="text-gray-900 dark:text-white">Job Seeker</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* File Upload Info */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                <h3 className="font-medium text-blue-900 dark:text-blue-300 mb-2">Photo Upload Guidelines</h3>
+                <ul className="text-sm text-blue-800 dark:text-blue-400 space-y-1">
+                    <li>• Supported formats: JPG, JPEG, PNG</li>
+                    <li>• Maximum file size: 5MB</li>
+                    <li>• Recommended dimensions: 400x400 pixels</li>
+                    <li>• Use a professional headshot for best results</li>
+                </ul>
+            </div>
+        </div>
+    );
+};
+
+export default CandidateProfile;
