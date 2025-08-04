@@ -2,7 +2,7 @@ import React from "react";
 import moment from "moment";
 import kConverter from "k-convert";
 import { assets } from "../assets/assets";
-import { MapPin, Clock, User } from "lucide-react";
+import { MapPin, Clock, User, ArrowRight, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const JobCard = ({ job }) => {
@@ -15,60 +15,77 @@ const JobCard = ({ job }) => {
         navigate(`/apply-job/${job._id}`);
         scrollTo(0, 0);
       }}
-      className="group bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 p-4 sm:p-5 hover:shadow-lg dark:hover:shadow-gray-900/20 transition-all duration-300 cursor-pointer hover:border-blue-300 dark:hover:border-blue-500"
+      className="group bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 hover:shadow-2xl transition-all duration-500 cursor-pointer hover:border-blue-300 transform hover:-translate-y-2 relative overflow-hidden min-h-[280px] sm:min-h-[320px] lg:min-h-[300px] xl:min-h-[280px] flex flex-col"
     >
-      <div className="flex gap-3 sm:gap-4">
-        {/* Company Logo */}
-        <div className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg flex items-center justify-center group-hover:border-blue-200 dark:group-hover:border-blue-400 transition-colors">
-          <img
-            className="w-8 h-8 sm:w-10 sm:h-10 object-contain rounded"
-            src={job.companyId?.image || assets.company_icon}
-            alt={`${job.companyId?.name || "Company"} Logo`}
-            onError={(e) => {
-              e.target.src = assets.company_icon;
-            }}
-          />
+      {/* Background Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+
+      {/* Content Container */}
+      <div className="relative z-10 flex flex-col h-full">
+        {/* Header Section */}
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-100 to-blue-50 border-2 border-blue-200 rounded-2xl flex items-center justify-center group-hover:border-blue-300 transition-all duration-300 shadow-sm flex-shrink-0">
+            <img
+              className="w-6 h-6 sm:w-10 sm:h-10 object-contain rounded-lg"
+              src={job.companyId?.image || assets.company_icon}
+              alt={`${job.companyId?.name || "Company"} Logo`}
+              onError={(e) => {
+                e.target.src = assets.company_icon;
+              }}
+            />
+          </div>
+          <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+          </div>
         </div>
 
-        {/* Job Details */}
-        <div className="flex-1 min-w-0">
-          <h3 className="text-base sm:text-lg text-gray-800 dark:text-white font-semibold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
-            {job.title}
-          </h3>
+        {/* Job Title */}
+        <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight flex-shrink-0">
+          {job.title}
+        </h3>
 
-          {/* Job Meta Info - Responsive */}
-          <div className="space-y-2">
-            {/* First Row */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-              <div className="flex items-center gap-1.5">
-                <img src={assets.suitcase_icon} alt="Company" className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="truncate">{job.companyId?.name || "Unknown Company"}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <User size={14} className="sm:w-4 sm:h-4" />
-                <span>{job.level}</span>
-              </div>
-            </div>
+        {/* Company Info */}
+        <div className="flex items-center gap-2 mb-3 sm:mb-4 flex-shrink-0">
+          <Building2 className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 flex-shrink-0" />
+          <span className="text-sm sm:text-base text-gray-600 font-medium truncate">
+            {job.companyId?.name || "Unknown Company"}
+          </span>
+        </div>
 
-            {/* Second Row */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-              <div className="flex items-center gap-1.5">
-                <MapPin size={14} className="sm:w-4 sm:h-4" />
-                <span className="truncate">{job.location}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Clock size={14} className="sm:w-4 sm:h-4" />
-                <span className="whitespace-nowrap">{moment(job.date).fromNow()}</span>
-              </div>
-            </div>
+        {/* Job Details Grid */}
+        <div className="space-y-2 sm:space-y-3 mb-3 sm:mb-4 flex-1">
+          <div className="flex items-center gap-2 text-gray-600">
+            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500 flex-shrink-0" />
+            <span className="text-xs sm:text-sm truncate">{job.location}</span>
+          </div>
 
-            {/* Salary Row */}
-            <div className="flex items-center gap-1.5 text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium">
-              <img src={assets.money_icon} alt="Salary" className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="truncate">
-                CTC: {job.salary ? kConverter.convertTo(job.salary) : "Not disclosed"}
+          <div className="flex items-center gap-2 text-gray-600">
+            <User className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 flex-shrink-0" />
+            <span className="text-xs sm:text-sm">{job.level}</span>
+          </div>
+
+          <div className="flex items-center gap-2 text-gray-600">
+            <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-orange-500 flex-shrink-0" />
+            <span className="text-xs sm:text-sm">{moment(job.date).fromNow()}</span>
+          </div>
+        </div>
+
+        {/* Salary Section */}
+        <div className="mt-auto flex-shrink-0">
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-2 sm:p-3 group-hover:from-green-100 group-hover:to-emerald-100 transition-all duration-300">
+            <div className="flex items-center gap-2">
+              <img src={assets.money_icon} alt="Salary" className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="text-green-700 font-semibold text-xs sm:text-sm truncate">
+                {job.salary ? `₹${kConverter.convertTo(job.salary)}` : "Salary not disclosed"}
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Hover Effect Badge */}
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+          <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+            View Details
           </div>
         </div>
       </div>
