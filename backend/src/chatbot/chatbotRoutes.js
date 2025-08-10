@@ -57,14 +57,62 @@ router.post('/message', async (req, res) => {
 
     // Check if Gemini API key is configured
     if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({
-        success: false,
-        error: 'Gemini API key not configured'
+      console.log('Gemini API key not configured, using fallback response');
+      const fallbackResponse = getFallbackResponse(message);
+      return res.status(200).json({
+        success: true,
+        data: {
+          message: fallbackResponse.message,
+          suggestions: fallbackResponse.suggestions,
+          timestamp: new Date().toISOString(),
+          fallback: true
+        }
       });
     }
 
-    // Get the generative model
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    // Get the generative model with error handling
+    let model;
+    try {
+      // Try multiple model names in order of preference
+      const modelNames = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+      let modelInitialized = false;
+
+      for (const modelName of modelNames) {
+        try {
+          model = genAI.getGenerativeModel({
+            model: modelName,
+            generationConfig: {
+              temperature: 0.7,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 1024,
+            }
+          });
+          console.log(`Successfully initialized with model: ${modelName}`);
+          modelInitialized = true;
+          break;
+        } catch (err) {
+          console.log(`Failed to initialize model ${modelName}:`, err.message);
+          continue;
+        }
+      }
+
+      if (!modelInitialized) {
+        throw new Error('No compatible Gemini model found');
+      }
+    } catch (modelError) {
+      console.error('Error initializing Gemini model:', modelError);
+      const fallbackResponse = getFallbackResponse(message);
+      return res.status(200).json({
+        success: true,
+        data: {
+          message: fallbackResponse.message,
+          suggestions: fallbackResponse.suggestions,
+          timestamp: new Date().toISOString(),
+          fallback: true
+        }
+      });
+    }
 
     // Build conversation context
     let conversationContext = JOBASTRA_CONTEXT + "\n\nConversation History:\n";
@@ -77,8 +125,14 @@ router.post('/message', async (req, res) => {
 
     conversationContext += `\nUser: ${message}\nJobBot:`;
 
-    // Generate response
-    const result = await model.generateContent(conversationContext);
+    // Generate response with timeout
+    const result = await Promise.race([
+      model.generateContent(conversationContext),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timeout')), 10000)
+      )
+    ]);
+
     const response = await result.response;
     const botReply = response.text();
 
@@ -215,15 +269,42 @@ router.get('/suggestions', (req, res) => {
 });
 
 // GET /api/chatbot/health
-router.get('/health', (req, res) => {
-  res.json({
-    success: true,
-    data: {
+router.get('/health', async (req, res) => {
+  try {
+    const healthData = {
       status: 'online',
       gemini_configured: !!process.env.GEMINI_API_KEY,
       timestamp: new Date().toISOString()
+    };
+
+    // Test Gemini API connection if key is available
+    if (process.env.GEMINI_API_KEY) {
+      try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const result = await model.generateContent("Hello, respond with 'API Working'");
+        const response = await result.response;
+        const text = response.text();
+
+        healthData.gemini_status = 'connected';
+        healthData.test_response = text.substring(0, 50);
+      } catch (apiError) {
+        healthData.gemini_status = 'error';
+        healthData.gemini_error = apiError.message;
+      }
+    } else {
+      healthData.gemini_status = 'not_configured';
     }
-  });
+
+    res.json({
+      success: true,
+      data: healthData
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
 });
 
 export default router;

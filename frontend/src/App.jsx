@@ -18,7 +18,7 @@ import ViewApplications from "./pages/ViewApplications";
 import CandidateDashboard from "./pages/CandidateDashboard";
 import CandidateOverview from "./pages/CandidateOverview";
 import CandidateProfile from "./pages/CandidateProfile";
-// import Chatbot from "./components/Chatbot/Chatbot";  
+import Chatbot from "./components/Chatbot/Chatbot";  
 import { AppContext } from "./context/AppContext";
 
 const App = () => {
@@ -53,7 +53,7 @@ const App = () => {
       </Routes>
 
       {/* Global Chatbot - Accessible from everywhere */}
-      {/* <Chatbot /> */}
+      <Chatbot />
     </AppLayout>
   );
 };

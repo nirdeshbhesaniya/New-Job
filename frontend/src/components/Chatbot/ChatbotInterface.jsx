@@ -68,8 +68,10 @@ const ChatbotInterface = ({ isOpen, onClose, onMinimize, isMinimized, isMobile }
       const botMessage = {
         id: Date.now() + 1,
         type: 'bot',
-        content: response.response,
-        timestamp: new Date()
+        content: response.message,
+        timestamp: new Date(),
+        suggestions: response.suggestions || [],
+        fallback: response.fallback
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -81,7 +83,8 @@ const ChatbotInterface = ({ isOpen, onClose, onMinimize, isMinimized, isMobile }
         id: Date.now() + 1,
         type: 'bot',
         content: "I'm having trouble connecting right now. Please try asking your question again, or visit our Jobs page to browse available positions.",
-        timestamp: new Date()
+        timestamp: new Date(),
+        suggestions: ["Browse Jobs", "Contact Support", "Try Again", "Help"]
       };
 
       setMessages(prev => [...prev, errorMessage]);
