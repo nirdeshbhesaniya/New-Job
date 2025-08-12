@@ -242,3 +242,22 @@ export const uploadResume = async (req, res) => {
     });
   }
 };
+
+// Get all users for company (for interview scheduling)
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('_id name email image');
+
+    return res.status(200).json({
+      success: true,
+      message: "Users fetched successfully",
+      users: users,
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch users",
+    });
+  }
+};

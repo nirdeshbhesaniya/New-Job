@@ -220,6 +220,26 @@ export const getCompanyPostedAllJobs = async (req, res) => {
   }
 };
 
+// Get all jobs for interview scheduling (simplified version)
+export const getAllJobs = async (req, res) => {
+  try {
+    const companyId = req.companyData._id;
+    const jobs = await Job.find({ companyId }).select('_id title location category level salary');
+
+    return res.status(200).json({
+      success: true,
+      message: "Jobs fetched successfully",
+      jobs: jobs,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Job fetching failed",
+    });
+  }
+};
+
 export const changeJobVisibility = async (req, res) => {
   try {
     const { id } = req.body;

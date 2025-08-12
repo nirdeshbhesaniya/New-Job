@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import moment from "moment";
 import Loader from "../components/Loader";
+import UpcomingInterviews from "../components/UpcomingInterviewsSimple";
 
 const CandidateOverview = () => {
     const { userData, userApplication, userDataLoading, applicationsLoading } = useContext(AppContext);
@@ -318,6 +319,11 @@ const CandidateOverview = () => {
                         </Link>
                     </div>
                 )}
+            </div>
+
+            {/* Upcoming Interviews Section */}
+            <div>
+                <UpcomingInterviews userType="candidate" limit={3} />
             </div>
 
             {/* Profile Completion */}

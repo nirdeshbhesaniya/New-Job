@@ -7,6 +7,7 @@ import {
   Star,
   UserRound,
   X,
+  Calendar,
 } from "lucide-react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -155,6 +156,15 @@ const Navbar = () => {
                     >
                       <UserRound size={16} />
                       Dashboard
+                    </Link>
+
+                    <Link
+                      to="/candidate-dashboard/interviews"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 gap-2 transition-colors"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    >
+                      <Calendar size={16} />
+                      Interviews
                     </Link>
 
                     <Link
@@ -307,6 +317,16 @@ const Navbar = () => {
                     >
                       <UserRound size={16} />
                       Dashboard
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/candidate-dashboard/interviews"
+                      onClick={toggleMenu}
+                      className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <Calendar size={16} />
+                      Interviews
                     </Link>
                   </li>
                   <li>

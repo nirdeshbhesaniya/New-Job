@@ -5,6 +5,7 @@ import {
   postJob,
   registerCompany,
   getCompanyPostedAllJobs,
+  getAllJobs,
   changeJobVisibility,
   getCompanyJobApplicants,
   changeStatus,
@@ -18,6 +19,7 @@ router.post("/register-company", upload.single("image"), registerCompany);
 router.post("/login-company", loginCompany);
 router.get("/company-data", companyAuthMiddleware, fetchCompanyData);
 router.post("/post-job", companyAuthMiddleware, postJob);
+router.get("/jobs", companyAuthMiddleware, getAllJobs);
 router.get(
   "/company/posted-jobs",
   companyAuthMiddleware,

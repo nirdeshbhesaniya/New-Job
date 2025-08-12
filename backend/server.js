@@ -8,7 +8,9 @@ import userRoutes from "./src/routes/userRoutes.js";
 import companyRoutes from "./src/routes/companyRoutes.js";
 import jobRoutes from "./src/routes/jobRoutes.js";
 import chatbotRoutes from "./src/chatbot/chatbotRoutes.js";
+import interviewRoutes from "./src/routes/interviewRoutes.js";
 import Cloudinary from "./src/utils/Cloudinary.js";
+import { initializeReminderSystem } from "./src/utils/reminderSystem.js";
 
 const app = express();
 
@@ -18,11 +20,15 @@ app.use(cors());
 connectDB();
 Cloudinary();
 
+// Initialize interview reminder system
+initializeReminderSystem();
+
 app.get("/", (req, res) => res.send("api is working"));
 
 app.use("/user", userRoutes);
 app.use("/company", companyRoutes);
 app.use("/job", jobRoutes);
+app.use("/interview", interviewRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 
 const PORT = process.env.PORT || 5000;

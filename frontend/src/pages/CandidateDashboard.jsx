@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { AppContext } from "../context/AppContext";
-import { LoaderCircle, LogOut, User, FileText, Briefcase, Search, Home, Star, ArrowLeft } from "lucide-react";
+import { LoaderCircle, LogOut, User, FileText, Briefcase, Search, Home, Star, ArrowLeft, Calendar } from "lucide-react";
 import toast from "react-hot-toast";
 
 const CandidateDashboard = () => {
@@ -25,6 +25,13 @@ const CandidateDashboard = () => {
             path: "/candidate-dashboard/overview",
             icon: Home,
             description: "Your overview and statistics"
+        },
+        {
+            id: "interviews",
+            name: "Interviews",
+            path: "/candidate-dashboard/interviews",
+            icon: Calendar,
+            description: "Manage your interview schedule"
         },
         {
             id: "profile",

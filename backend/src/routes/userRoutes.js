@@ -6,9 +6,11 @@ import {
   applyJob,
   getUserAppliedJobs,
   uploadResume,
+  getAllUsers,
 } from "../controllers/userController.js";
 import upload from "../utils/upload.js";
 import userAuthMiddleware from "../middlewares/userAuthMiddleware.js";
+import companyAuthMiddleware from "../middlewares/companyAuthMiddleware.js";
 
 const router = express.Router();
 
@@ -23,5 +25,6 @@ router.post(
   upload.single("resume"),
   uploadResume
 );
+router.get("/all-users", companyAuthMiddleware, getAllUsers);
 
 export default router;

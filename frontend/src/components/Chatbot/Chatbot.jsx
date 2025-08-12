@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import ChatbotButton from './ChatbotButton';
-import ChatbotInterface from './ChatbotInterface';
+import  { useState, useEffect } from "react";
+import ChatbotButton from "./ChatbotButton";
+import ChatbotInterface from "./ChatbotInterface";
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,19 +12,20 @@ const Chatbot = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const toggleChatbot = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) {
-      setIsMinimized(false);
-      setUnreadCount(0);
-    }
+    setIsOpen((prev) => {
+      const newState = !prev;
+      if (newState) {
+        setIsMinimized(false);
+        setUnreadCount(0);
+      }
+      return newState;
+    });
   };
 
   const closeChatbot = () => {
@@ -33,19 +34,19 @@ const Chatbot = () => {
   };
 
   const toggleMinimize = () => {
-    setIsMinimized(!isMinimized);
+    setIsMinimized((prev) => !prev);
   };
 
   return (
     <>
-      {/* Chatbot Button - Always visible */}
+      {/* Always render button */}
       <ChatbotButton
         onClick={toggleChatbot}
         isOpen={isOpen}
         unreadCount={unreadCount}
       />
 
-      {/* Mobile Full Screen Overlay */}
+      {/* Overlay for mobile (below button) */}
       {isMobile && isOpen && !isMinimized && (
         <div
           className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm transition-opacity duration-300"
@@ -54,15 +55,18 @@ const Chatbot = () => {
       )}
 
       {/* Chatbot Interface */}
-      {isMobile && isOpen ? (
-        // Mobile: Full screen with overlay
-        <div className="fixed inset-2 sm:inset-4 z-50 flex items-end">
-          <div className={`
-            w-full bg-white dark:bg-gray-900 rounded-t-2xl shadow-2xl 
-            border border-gray-200 dark:border-gray-700 overflow-hidden
-            transition-all duration-300 ease-out
-            ${isMinimized ? 'h-16' : 'h-full max-h-[600px]'}
-          `}>
+      {isMobile ? (
+        // Mobile: Full-screen style
+        <div
+          className={`fixed inset-0 z-50 flex items-end transition-all duration-300 ${
+            isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <div
+            className={`w-full bg-white dark:bg-gray-900 rounded-t-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 ease-out ${
+              isMinimized ? "h-16" : "h-full max-h-[600px]"
+            }`}
+          >
             <ChatbotInterface
               isOpen={isOpen}
               onClose={closeChatbot}

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Route, Routes } from "react-router-dom";
 import AppLayout from "./layout/AppLayout";
 import About from "./pages/About";
@@ -15,15 +15,15 @@ import Dashborad from "./pages/Dashborad";
 import AddJobs from "./pages/AddJobs";
 import ManageJobs from "./pages/ManageJobs";
 import ViewApplications from "./pages/ViewApplications";
+import RecruiterOverview from "./pages/RecruiterOverview";
 import CandidateDashboard from "./pages/CandidateDashboard";
 import CandidateOverview from "./pages/CandidateOverview";
 import CandidateProfile from "./pages/CandidateProfile";
-import Chatbot from "./components/Chatbot/Chatbot";  
-import { AppContext } from "./context/AppContext";
+import InterviewDashboard from "./pages/candidate/InterviewDashboard";
+import RecruiterInterviewPage from "./pages/RecruiterInterviewPage";
+import Chatbot from "./components/Chatbot/Chatbot";
 
 const App = () => {
-  const { companyToken } = useContext(AppContext);
-
   return (
     <AppLayout>
       <Routes>
@@ -40,15 +40,18 @@ const App = () => {
 
         {/* Recruiter Dashboard */}
         <Route path="/dashboard" element={<Dashborad />}>
+          <Route path="overview" element={<RecruiterOverview />} />
           <Route path="add-job" element={<AddJobs />} />
           <Route path="manage-jobs" element={<ManageJobs />} />
           <Route path="view-applications" element={<ViewApplications />} />
+          <Route path="interviews" element={<RecruiterInterviewPage />} />
         </Route>
 
         {/* Candidate Dashboard */}
         <Route path="/candidate-dashboard" element={<CandidateDashboard />}>
           <Route path="overview" element={<CandidateOverview />} />
           <Route path="profile" element={<CandidateProfile />} />
+          <Route path="interviews" element={<InterviewDashboard />} />
         </Route>
       </Routes>
 
