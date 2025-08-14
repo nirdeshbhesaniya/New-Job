@@ -4,9 +4,10 @@ import { assets } from "../assets/assets";
 import { User, Mail, Phone, MapPin, Calendar, Upload, Save, Edit3, LoaderCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import Loader from "../components/Loader";
+import axios from "axios";
 
 const CandidateProfile = () => {
-    const { userData, setUserData, userDataLoading } = useContext(AppContext);
+    const { userData, userDataLoading, backendUrl, userToken, fetchUserData } = useContext(AppContext);
     const [isEditing, setIsEditing] = useState(false);
     const [profileImage, setProfileImage] = useState(null);
     const [formData, setFormData] = useState({
@@ -18,10 +19,10 @@ const CandidateProfile = () => {
     });
 
     const handleInputChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        const { name, value } = e.target;
+        // Basic phone sanitization: allow digits, plus, spaces, hyphens
+        const sanitized = name === 'phone' ? value.replace(/[^0-9+\-\s]/g, '') : value;
+        setFormData(prev => ({ ...prev, [name]: sanitized }));
     };
 
     const handleImageChange = (e) => {
@@ -48,13 +49,34 @@ const CandidateProfile = () => {
 
     const handleSave = async () => {
         try {
-            // Here you would typically make an API call to update the profile
-            // For now, we'll just update the local state
-            setUserData({ ...userData, ...formData });
+            const headers = { token: userToken };
+
+            // If image selected, send multipart
+            if (profileImage) {
+                const form = new FormData();
+                form.append('name', formData.name || '');
+                form.append('phone', formData.phone || '');
+                form.append('location', formData.location || '');
+                form.append('bio', formData.bio || '');
+                form.append('image', profileImage);
+
+                await axios.put(`${backendUrl}/user/update-profile`, form, { headers });
+            } else {
+                // JSON body
+                await axios.put(
+                    `${backendUrl}/user/update-profile`,
+                    { name: formData.name, phone: formData.phone, location: formData.location, bio: formData.bio },
+                    { headers }
+                );
+            }
+
+            await fetchUserData();
             setIsEditing(false);
+            setProfileImage(null);
             toast.success("Profile updated successfully!");
-        } catch {
-            toast.error("Failed to update profile");
+        } catch (error) {
+            const msg = error?.response?.data?.message || 'Failed to update profile';
+            toast.error(msg);
         }
     };
 

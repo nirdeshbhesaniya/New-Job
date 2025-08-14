@@ -261,3 +261,40 @@ export const getAllUsers = async (req, res) => {
     });
   }
 };
+
+// Update user profile (phone, location, bio, and optional image)
+export const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.userData._id;
+    const { name, phone, location, bio } = req.body;
+    const imageFile = req.file;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (typeof name === 'string' && name.trim()) user.name = name.trim();
+    if (typeof phone === 'string') user.phone = phone.trim();
+    if (typeof location === 'string') user.location = location.trim();
+    if (typeof bio === 'string') user.bio = bio;
+
+    if (imageFile) {
+      try {
+        const uploaded = await cloudinary.uploader.upload(imageFile.path);
+        user.image = uploaded.secure_url;
+      } catch (err) {
+        console.error('Image upload failed:', err);
+        return res.status(400).json({ success: false, message: 'Image upload failed' });
+      }
+    }
+
+    await user.save();
+
+    const freshUser = await User.findById(user._id).select('-password');
+    return res.status(200).json({ success: true, message: 'Profile updated', userData: freshUser });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to update profile' });
+  }
+};

@@ -7,6 +7,7 @@ import {
   getUserAppliedJobs,
   uploadResume,
   getAllUsers,
+  updateUserProfile,
 } from "../controllers/userController.js";
 import upload from "../utils/upload.js";
 import userAuthMiddleware from "../middlewares/userAuthMiddleware.js";
@@ -26,5 +27,13 @@ router.post(
   uploadResume
 );
 router.get("/all-users", companyAuthMiddleware, getAllUsers);
+
+// Update profile: supports JSON body and optional image file under key 'image'
+router.put(
+  "/update-profile",
+  userAuthMiddleware,
+  upload.single("image"),
+  updateUserProfile
+);
 
 export default router;
