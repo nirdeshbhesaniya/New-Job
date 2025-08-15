@@ -1,21 +1,23 @@
 import moment from "moment";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { assets } from "../assets/assets";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import Loader from "../components/Loader";
 import toast from "react-hot-toast";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Trash2, FileText, Mail, MapPin as MapPinIcon, Calendar as CalendarIcon, X } from "lucide-react";
 
 const ViewApplications = () => {
   const [viewApplicationsPageData, setViewApplicationsPageData] =
     useState(null);
+  const [selectedApp, setSelectedApp] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   const { backendUrl, companyToken } = useContext(AppContext);
 
-  const fetchViewApplicationsPageData = async () => {
+  const fetchViewApplicationsPageData = useCallback(async () => {
     setIsLoading(true);
     try {
       const { data } = await axios.post(
@@ -38,7 +40,7 @@ const ViewApplications = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [backendUrl, companyToken]);
 
   const handleStatusUpdate = async (id, status) => {
     setUpdatingStatus(id);
@@ -71,7 +73,32 @@ const ViewApplications = () => {
 
   useEffect(() => {
     fetchViewApplicationsPageData();
-  }, []);
+  }, [fetchViewApplicationsPageData]);
+
+  const handleDeleteApplication = async (id) => {
+    if (!id) return;
+    const proceed = window.confirm("Delete this rejected application? The candidate will be able to apply again.");
+    if (!proceed) return;
+    try {
+      setDeletingId(id);
+      const { data } = await axios.post(
+        `${backendUrl}/company/delete-application`,
+        { id },
+        { headers: { token: companyToken } }
+      );
+      if (data?.success) {
+        toast.success(data?.message || "Application deleted");
+        setSelectedApp(null);
+        await fetchViewApplicationsPageData();
+      } else {
+        toast.error(data?.message || "Failed to delete application");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Delete failed");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <section>
@@ -119,7 +146,7 @@ const ViewApplications = () => {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {viewApplicationsPageData.reverse().map((job, index) => (
+                {viewApplicationsPageData.slice().reverse().map((job, index) => (
                   <tr
                     key={job._id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
@@ -181,6 +208,12 @@ const ViewApplications = () => {
                             />
                             View Resume
                           </a>
+                          <button
+                            className="text-sm text-indigo-600 hover:text-indigo-800 underline"
+                            onClick={() => setSelectedApp(job)}
+                          >
+                            Details
+                          </button>
                           {job?.userId?.image && (
                             <button
                               onClick={() => {
@@ -291,6 +324,195 @@ const ViewApplications = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+      {selectedApp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-black/50 via-purple-900/20 to-black/50 backdrop-blur-sm p-2 sm:p-4">
+          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl w-full max-w-4xl max-h-[95vh] rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 overflow-hidden animate-in zoom-in-95 duration-300">
+            {/* Header */}
+            <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white overflow-hidden">
+              {/* Background Pattern */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 backdrop-blur-3xl"></div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+
+              <div className="relative p-4 sm:p-6 lg:p-8">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                  <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-pink-600 to-purple-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                    <img
+                      src={selectedApp?.userId?.image || assets.default_profile}
+                      onError={(e) => (e.target.src = assets.default_profile)}
+                      className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-3 border-white/30 object-cover shadow-xl"
+                      alt={selectedApp?.userId?.name}
+                    />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                      {selectedApp?.userId?.name}
+                    </h3>
+                    <p className="text-base sm:text-lg text-blue-100 font-medium mb-2 sm:mb-3">
+                      {selectedApp?.jobId?.title}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-white/90">
+                      <span className="inline-flex items-center gap-1.5 bg-white/20 rounded-full px-2 py-1">
+                        <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="hidden xs:inline">{selectedApp?.userId?.email}</span>
+                        <span className="xs:hidden">Email</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 bg-white/20 rounded-full px-2 py-1">
+                        <MapPinIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                        {selectedApp?.jobId?.location}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 bg-white/20 rounded-full px-2 py-1">
+                        <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                        {selectedApp?.date ? moment(selectedApp.date).fromNow() : "N/A"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:items-end gap-2">
+                    <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold shadow-lg backdrop-blur-sm ${selectedApp?.status === 'Accepted'
+                        ? 'bg-emerald-500/90 text-white border border-emerald-400/50'
+                        : selectedApp?.status === 'Rejected'
+                          ? 'bg-red-500/90 text-white border border-red-400/50'
+                          : 'bg-amber-500/90 text-white border border-amber-400/50'
+                      }`}>
+                      {selectedApp?.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-4 sm:p-6 lg:p-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
+              {/* Quick Actions */}
+              <div className="flex flex-wrap gap-3 mb-6 sm:mb-8">
+                {selectedApp?.userId?.resume && (
+                  <a
+                    href={selectedApp.userId.resume}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group relative inline-flex items-center gap-2.5 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 text-sm sm:text-base"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-xl blur-lg group-hover:blur-xl transition-all duration-300"></div>
+                    <FileText className="relative w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="relative">View Resume</span>
+                  </a>
+                )}
+
+                {selectedApp?.status === 'Rejected' && (
+                  <button
+                    className="group relative inline-flex items-center gap-2.5 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
+                    onClick={() => handleDeleteApplication(selectedApp._id)}
+                    disabled={deletingId === selectedApp._id}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-rose-600/20 rounded-xl blur-lg group-hover:blur-xl transition-all duration-300"></div>
+                    {deletingId === selectedApp._id ? (
+                      <>
+                        <LoaderCircle className="relative w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                        <span className="relative">Deleting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="relative w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="relative">Delete Application</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {/* Information Cards */}
+              <div className="space-y-6 sm:space-y-8">
+                {/* Personal Info */}
+                <div className="bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-800/50 dark:to-blue-900/20 rounded-2xl p-4 sm:p-6 border border-slate-200/50 dark:border-gray-700/50">
+                  <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    Professional Details
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-1">
+                      <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">Expected Salary</div>
+                      <div className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                        {selectedApp?.additionalInfo?.expectedSalary || "—"}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">Notice Period</div>
+                      <div className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                        {selectedApp?.additionalInfo?.noticePeriod || "—"}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">Years of Experience</div>
+                      <div className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                        {selectedApp?.additionalInfo?.yearsExperience ?? "—"}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">Current Location</div>
+                      <div className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                        {selectedApp?.additionalInfo?.currentLocation || "—"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {selectedApp?.additionalInfo?.portfolioUrl && (
+                    <div className="mt-4 sm:mt-6 space-y-1">
+                      <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">Portfolio</div>
+                      <a
+                        className="inline-flex items-center gap-2 text-sm sm:text-base text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium bg-white dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors duration-200 break-all"
+                        href={selectedApp.additionalInfo.portfolioUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span className="truncate max-w-xs sm:max-w-md">{selectedApp.additionalInfo.portfolioUrl}</span>
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+                {/* Cover Letter */}
+                {selectedApp?.additionalInfo?.coverLetter && (
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl p-4 sm:p-6 border border-amber-200/50 dark:border-amber-700/50">
+                    <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                      Cover Letter
+                    </h4>
+                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/50 dark:border-gray-700/50">
+                      <div className="prose prose-sm sm:prose-base max-w-none dark:prose-invert text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                        {selectedApp.additionalInfo.coverLetter}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="relative bg-gradient-to-r from-gray-50 to-slate-100 dark:from-gray-800 dark:to-gray-900 border-t border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                  Application Details Last Updated
+                </div>
+                <button
+                  className="group relative inline-flex items-center gap-2.5 px-6 py-2.5 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-600 dark:hover:to-gray-500 text-gray-800 dark:text-gray-200 font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 text-sm sm:text-base"
+                  onClick={() => setSelectedApp(null)}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-300/20 to-gray-400/20 dark:from-gray-600/20 dark:to-gray-500/20 rounded-xl blur-lg group-hover:blur-xl transition-all duration-300"></div>
+                  <X className="relative w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="relative">Close</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

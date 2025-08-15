@@ -129,7 +129,7 @@ export const fetchUserData = async (req, res) => {
 
 export const applyJob = async (req, res) => {
   try {
-    const { jobId } = req.body;
+    const { jobId, additionalInfo } = req.body;
     const userId = req.userData._id;
 
     if (!userId || !jobId) {
@@ -159,6 +159,14 @@ export const applyJob = async (req, res) => {
       userId,
       companyId: jobData.companyId,
       date: new Date(),
+      additionalInfo: {
+        coverLetter: additionalInfo?.coverLetter || undefined,
+        expectedSalary: additionalInfo?.expectedSalary || undefined,
+        noticePeriod: additionalInfo?.noticePeriod || undefined,
+        yearsExperience: typeof additionalInfo?.yearsExperience === 'number' ? additionalInfo.yearsExperience : undefined,
+        currentLocation: additionalInfo?.currentLocation || undefined,
+        portfolioUrl: additionalInfo?.portfolioUrl || undefined,
+      },
     });
 
     await jobApplication.save();

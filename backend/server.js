@@ -9,6 +9,7 @@ import companyRoutes from "./src/routes/companyRoutes.js";
 import jobRoutes from "./src/routes/jobRoutes.js";
 import chatbotRoutes from "./src/chatbot/chatbotRoutes.js";
 import interviewRoutes from "./src/routes/interviewRoutes.js";
+import aiRoutes from "./src/routes/aiRoutes.js";
 import Cloudinary from "./src/utils/Cloudinary.js";
 import { initializeReminderSystem } from "./src/utils/reminderSystem.js";
 
@@ -30,6 +31,7 @@ app.use("/company", companyRoutes);
 app.use("/job", jobRoutes);
 app.use("/interview", interviewRoutes);
 app.use("/api/chatbot", chatbotRoutes);
+app.use("/ai", aiRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🌐Server is running on port ${PORT}`));

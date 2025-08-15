@@ -21,7 +21,7 @@ const ChatbotButton = ({ onClick, isOpen, unreadCount = 0 }) => {
   if (!mounted) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70]">
       {/* 3D Floating Button */}
       <button
         onClick={onClick}
@@ -83,8 +83,8 @@ const ChatbotButton = ({ onClick, isOpen, unreadCount = 0 }) => {
                       ${pulse ? 'opacity-100' : 'opacity-0'}
                     `}
                     style={{
-                      left: `${x}%`,
-                      top: `${y}%`,
+                      insetInlineStart: `${x}%`,
+                      insetBlockStart: `${y}%`,
                       transform: 'translate(-50%, -50%)',
                       animationDelay: `${i * 200}ms`,
                     }}
@@ -119,7 +119,7 @@ const ChatbotButton = ({ onClick, isOpen, unreadCount = 0 }) => {
       <div
         className={`
           absolute inset-0 rounded-full bg-white/20 transition-opacity duration-200
-          ${isHovered ? 'opacity-100' : 'opacity-0'} sm:hidden
+      ${isHovered ? 'opacity-100' : 'opacity-0'} sm:hidden pointer-events-none
         `}
       />
     </div>

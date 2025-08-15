@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import {
   Send,
   Bot,
@@ -172,10 +173,13 @@ const ChatbotInterface = ({ isOpen, onClose, onMinimize, isMinimized, isMobile }
         {/* Messages Container */}
         {!isMinimized && (
           <>
-            <div className={`
-              flex-1 overflow-y-auto p-2 sm:p-3 space-y-2 sm:space-y-3
-              ${isMobile ? 'flex-1' : 'max-h-48 sm:max-h-64 md:max-h-80'}
-            `}>
+            <div
+              className={`
+                flex-1 overflow-y-auto p-2 sm:p-3 space-y-2 sm:space-y-3
+                ${isMobile ? 'flex-1' : 'max-h-48 sm:max-h-64 md:max-h-80'}
+              `}
+              style={isMobile ? { paddingBlockEnd: 'calc(env(safe-area-inset-bottom) + 0.25rem)' } : undefined}
+            >
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -197,7 +201,32 @@ const ChatbotInterface = ({ isOpen, onClose, onMinimize, isMinimized, isMobile }
                         }
                       `}
                     >
-                      <p className="break-words whitespace-pre-wrap">{message.content}</p>
+                      {message.type === 'bot' ? (
+                        <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-code:px-1 prose-code:py-0.5 prose-code:bg-gray-200 dark:prose-code:bg-gray-700 prose-code:rounded">
+                          <ReactMarkdown
+                            components={{
+                              a: ({ href, children, ...props }) => (
+                                <a
+                                  href={href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 dark:text-blue-400 underline"
+                                  {...props}
+                                >
+                                  {children}
+                                </a>
+                              ),
+                              code: ({ className, children, ...props }) => (
+                                <code className={`${className || ''}`.trim()} {...props}>{children}</code>
+                              )
+                            }}
+                          >
+                            {String(message.content || '')}
+                          </ReactMarkdown>
+                        </div>
+                      ) : (
+                        <p className="break-words whitespace-pre-wrap">{message.content}</p>
+                      )}
                     </div>
 
                     {/* Suggestions for bot messages */}
@@ -257,7 +286,10 @@ const ChatbotInterface = ({ isOpen, onClose, onMinimize, isMinimized, isMobile }
             </div>
 
             {/* Input Area */}
-            <div className="p-2 sm:p-3 border-t border-gray-200 dark:border-gray-700">
+            <div
+              className="p-2 sm:p-3 border-t border-gray-200 dark:border-gray-700"
+              style={isMobile ? { paddingBlockEnd: 'calc(env(safe-area-inset-bottom) + 0.25rem)' } : undefined}
+            >
               <div className="flex items-end space-x-1 sm:space-x-2">
                 <div className="flex-1 relative">
                   <textarea

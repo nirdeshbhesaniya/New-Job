@@ -1,6 +1,6 @@
 import React from "react";
 import moment from "moment";
-import kConverter from "k-convert";
+import formatSalaryLPA from "../utils/formatSalary";
 import { assets } from "../assets/assets";
 import { MapPin, Clock, User, ArrowRight, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -76,7 +76,7 @@ const JobCard = ({ job }) => {
             <div className="flex items-center gap-2">
               <img src={assets.money_icon} alt="Salary" className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
               <span className="text-green-700 font-semibold text-xs sm:text-sm truncate">
-                {job.salary ? `₹${kConverter.convertTo(job.salary)}` : "Salary not disclosed"}
+                {job.salary ? formatSalaryLPA(job.salary) : "Salary not disclosed"}
               </span>
             </div>
           </div>

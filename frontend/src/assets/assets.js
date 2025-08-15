@@ -18,6 +18,8 @@ import facebook_icon from "./facebook_icon.svg";
 import network from "./global-connection.png";
 import home_icon from "./home_icon.svg";
 import instagram_icon from "./instagram_icon.svg";
+import linkedin_icon from "./linkedin_icon.svg";
+import github_icon from "./github_icon.svg";
 import data_scince from "./intelligence.png";
 import left_arrow_icon from "./left_arrow_icon.svg";
 import location_icon from "./location_icon.svg";
@@ -72,6 +74,8 @@ export const assets = {
   facebook_icon,
   instagram_icon,
   twitter_icon,
+  linkedin_icon,
+  github_icon,
   home_icon,
   add_icon,
   person_tick_icon,

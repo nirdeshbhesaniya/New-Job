@@ -47,19 +47,19 @@ const Footer = () => {
               </h4>
               <div className="flex flex-wrap gap-3 sm:gap-4">
                 <a
-                  href="#"
-                  className="group relative bg-gradient-to-r from-blue-600 to-blue-700 p-3 rounded-xl hover:from-blue-500 hover:to-blue-600 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25"
-                  aria-label="Facebook"
+                  href="https://www.linkedin.com/in/nirdesh-bhesaniya-387b67284/"
+                  className="group relative bg-gradient-to-r from-blue-700 to-blue-800 p-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25"
+                  aria-label="LinkedIn"
                 >
                   <img
-                    src={assets.facebook_icon}
-                    alt="Facebook"
+                    src={assets.linkedin_icon}
+                    alt="LinkedIn"
                     className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-blue-400 rounded-xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-blue-500 rounded-xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
                 </a>
                 <a
-                  href="#"
+                  href="https://x.com/Nirdesh_12"
                   className="group relative bg-gradient-to-r from-sky-500 to-sky-600 p-3 rounded-xl hover:from-sky-400 hover:to-sky-500 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-sky-500/25"
                   aria-label="Twitter"
                 >
@@ -71,16 +71,16 @@ const Footer = () => {
                   <div className="absolute inset-0 bg-sky-400 rounded-xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
                 </a>
                 <a
-                  href="#"
-                  className="group relative bg-gradient-to-r from-pink-500 to-rose-600 p-3 rounded-xl hover:from-pink-400 hover:to-rose-500 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-pink-500/25"
-                  aria-label="Instagram"
+                  href="https://github.com/nirdeshbhesaniya"
+                  className="group relative bg-gradient-to-r from-gray-700 to-gray-800 p-3 rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-gray-500/25"
+                  aria-label="GitHub"
                 >
                   <img
-                    src={assets.instagram_icon}
-                    alt="Instagram"
+                    src={assets.github_icon}
+                    alt="GitHub"
                     className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-pink-400 rounded-xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gray-400 rounded-xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
                 </a>
               </div>
             </div>

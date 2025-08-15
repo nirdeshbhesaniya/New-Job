@@ -258,6 +258,84 @@ India
     }
   ];
 
+  // Render content with headings (from **Heading:**), bullet lists (•), and paragraphs
+  const renderContent = (text) => {
+    const lines = text.split('\n');
+    const elements = [];
+    let listItems = [];
+    let paraLines = [];
+    let keyIdx = 0;
+
+    const flushList = () => {
+      if (listItems.length) {
+        elements.push(
+          <ul key={`ul-${keyIdx++}`} className="space-y-2 mb-4">
+            {listItems.map((item, i) => (
+              <li key={`li-${keyIdx}-${i}`} className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                <span className="text-gray-600 dark:text-gray-300">{item}</span>
+              </li>
+            ))}
+          </ul>
+        );
+        listItems = [];
+      }
+    };
+
+    const flushPara = () => {
+      if (paraLines.length) {
+        elements.push(
+          <p key={`p-${keyIdx++}`} className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+            {paraLines.join(' ')}
+          </p>
+        );
+        paraLines = [];
+      }
+    };
+
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+      if (line === '') {
+        // Paragraph or list boundary
+        flushList();
+        flushPara();
+        continue;
+      }
+
+      // Heading like **Title:**
+      const headingMatch = line.match(/^\*\*(.+?)\*\*(?::)?$/);
+      if (headingMatch) {
+        flushList();
+        flushPara();
+        const headingText = headingMatch[1];
+        elements.push(
+          <h4 key={`h4-${keyIdx++}`} className="text-lg font-semibold text-gray-900 dark:text-white mt-6 mb-3 first:mt-0">
+            <strong>{headingText}</strong>
+          </h4>
+        );
+        continue;
+      }
+
+      // Bullet start with •
+      if (line.startsWith('•')) {
+        flushPara();
+        const itemText = line.replace(/^•\s*/, '');
+        listItems.push(itemText);
+        continue;
+      }
+
+      // Regular paragraph line
+      flushList();
+      paraLines.push(line);
+    }
+
+    // Flush any remaining content
+    flushList();
+    flushPara();
+
+    return elements;
+  };
+
   return (
     <>
       <Navbar />
@@ -362,34 +440,8 @@ India
                   {isExpanded && (
                     <div className="px-6 sm:px-8 pb-6">
                       <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                        <div className="prose prose-gray dark:prose-invert max-w-none">
-                          {section.content.split('\n\n').map((paragraph, index) => {
-                            if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
-                              return (
-                                <h4 key={index} className="text-lg font-semibold text-gray-900 dark:text-white mt-6 mb-3 first:mt-0">
-                                  {paragraph.replace(/\*\*/g, '')}
-                                </h4>
-                              );
-                            } else if (paragraph.startsWith('•')) {
-                              const items = paragraph.split('\n• ').map(item => item.replace(/^• /, ''));
-                              return (
-                                <ul key={index} className="space-y-2 mb-4">
-                                  {items.map((item, itemIndex) => (
-                                    <li key={itemIndex} className="flex items-start gap-2">
-                                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
-                                      <span className="text-gray-600 dark:text-gray-300">{item}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              );
-                            } else {
-                              return (
-                                <p key={index} className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                                  {paragraph}
-                                </p>
-                              );
-                            }
-                          })}
+                        <div className="max-w-none">
+                          {renderContent(section.content)}
                         </div>
 
                         {/* Highlight */}

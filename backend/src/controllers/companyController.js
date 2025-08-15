@@ -341,3 +341,35 @@ export const changeStatus = async (req, res) => {
     });
   }
 };
+
+// Delete a job application (only allowed when status is Rejected and belongs to the company)
+export const deleteApplication = async (req, res) => {
+  try {
+    const { id } = req.body;
+    const companyId = req.companyData._id;
+
+    if (!id) {
+      return res.status(400).json({ success: false, message: "Application ID is required" });
+    }
+
+    const app = await JobApplication.findById(id);
+    if (!app) {
+      return res.status(404).json({ success: false, message: "Application not found" });
+    }
+
+    if (app.companyId.toString() !== companyId.toString()) {
+      return res.status(403).json({ success: false, message: "Not authorized to delete this application" });
+    }
+
+    if (app.status !== "Rejected") {
+      return res.status(400).json({ success: false, message: "Only rejected applications can be deleted" });
+    }
+
+    await JobApplication.findByIdAndDelete(id);
+
+    return res.status(200).json({ success: true, message: "Application deleted" });
+  } catch (error) {
+    console.error("Delete application error:", error);
+    return res.status(500).json({ success: false, message: "Failed to delete application" });
+  }
+};

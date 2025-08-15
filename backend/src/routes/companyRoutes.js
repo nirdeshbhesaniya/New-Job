@@ -9,6 +9,7 @@ import {
   changeJobVisibility,
   getCompanyJobApplicants,
   changeStatus,
+  deleteApplication,
 } from "../controllers/companyController.js";
 import upload from "../utils/upload.js";
 import companyAuthMiddleware from "../middlewares/companyAuthMiddleware.js";
@@ -32,5 +33,6 @@ router.post(
   getCompanyJobApplicants
 );
 router.post("/change-status", companyAuthMiddleware, changeStatus);
+router.post("/delete-application", companyAuthMiddleware, deleteApplication);
 
 export default router;
